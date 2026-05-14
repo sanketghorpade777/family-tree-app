@@ -1,70 +1,120 @@
-# Getting Started with Create React App
+# Family Tree Builder
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A single-page React application for building and visualizing family trees. Add members, define parent relationships, search, and export your tree as JSON — all saved automatically in the browser.
 
-## Available Scripts
+---
 
-In the project directory, you can run:
+## Features
 
-### `npm start`
+- **Add / Edit / Delete members** — name, gender, date of birth, father, mother
+- **Recursive tree view** — indented list that renders the full family hierarchy
+- **Detail panel** — click any member to see their children, siblings, parents, and DOB
+- **Relationship validation**
+  - Cycle detection — prevents making a descendant someone's parent
+  - Father dropdown shows only male members; Mother dropdown shows only female members
+  - Soft warning when a child's birth year precedes a parent's
+- **Delete dialog** — choose to orphan children or reassign them to the grandparent
+- **Live search** — highlights matching members across the tree; auto-selects on a single match
+- **Import / Export** — download the tree as JSON and reload it later
+- **Toast notifications** — confirmation popup after every add, edit, or delete
+- **Persistent storage** — tree is auto-saved to `localStorage` on every change
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+---
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Tech Stack
 
-### `npm test`
+| Layer | Technology |
+|---|---|
+| UI framework | React 19 |
+| Language | TypeScript |
+| Bundler | Create React App (Webpack) |
+| State management | `useReducer` + React Context (no external library) |
+| Persistence | `localStorage` |
+| ID generation | `nanoid` |
+| Styling | Plain CSS (CSS custom classes, no framework) |
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+---
 
-### `npm run build`
+## Project Structure
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```
+src/
+├── model/
+│   ├── types.ts          # Member, Tree, ValidationResult types
+│   ├── selectors.ts      # Pure read functions (childrenOf, siblingsOf, guardiens…)
+│   ├── useFunctions.ts   # Pure mutation functions (addMember, editMember, deleteMember)
+│   └── validation.ts     # Cycle check, duplicate parent, DOB warnings
+├── store/
+│   ├── treeContext.tsx   # useReducer + Context provider
+│   └── treeStore.ts      # localStorage load/save
+├── components/
+│   ├── TreeView.tsx       # Renders root-level nodes
+│   ├── TreeNode.tsx       # Single recursive tree row
+│   ├── DetailPanel.tsx    # Read view + inline edit toggle
+│   ├── MemberForm.tsx     # Shared add / edit form with validation
+│   ├── DeleteDialog.tsx   # Orphan vs reassign confirmation
+│   ├── SearchBar.tsx      # Live search with highlight
+│   └── Toast.tsx          # Toast notification provider + hook
+└── utils/
+    ├── id.ts              # nanoid wrapper
+    ├── importExport.ts    # JSON download / file upload
+    └── seedData.ts        # Sample family data
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+---
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Getting Started
 
-### `npm run eject`
+### Prerequisites
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+- Node.js 16 or higher
+- npm 8 or higher
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### Installation
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+```bash
+git clone <repository-url>
+cd family-tree-task
+npm install
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+### Run in development
 
-## Learn More
+```bash
+npm start
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Opens [http://localhost:3000](http://localhost:3000) in your browser. The page hot-reloads on file changes.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### Production build
 
-### Code Splitting
+```bash
+npm run build
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+Outputs an optimized bundle to the `build/` folder, ready to serve as a static site.
 
-### Analyzing the Bundle Size
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## Key Design Decisions
 
-### Making a Progressive Web App
+**Flat map over nested tree**
+Members are stored as a `Record<ID, Member>` with `fatherId` / `motherId` pointers. Children, siblings, and ancestors are all derived at read time — never stored. This means edits never desync two copies of the same data.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+**Cycle prevention on every parent change**
+Before accepting a new parent assignment, the app walks the candidate parent's ancestor chain. If the current member appears anywhere in it, the assignment is rejected with a clear error message.
 
-### Advanced Configuration
+**Delete dialog with two strategies**
+Silently cascade-deleting a parent would lose the children's relationship data. Silently orphaning surprises users. The dialog makes the choice explicit: remove the parent link, or reassign children to the grandparent.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+**Gender-filtered parent dropdowns**
+The Father field only shows male members and the Mother field only shows female members, reducing invalid selections without hiding any data.
 
-### Deployment
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+## Known Limitations
 
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- Marriages are not modeled as first-class relationships; spouses are implied by shared children
+- Step-parents and in-laws would require a separate edge type
+- No undo / redo (localStorage is overwritten on every change)
+- No multi-user or cloud sync support
