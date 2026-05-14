@@ -1,38 +1,298 @@
-.App {
-  text-align: center;
+/* ── Reset + Base ─────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-size: 14px;
+  background: #f5f5f5;
+  color: #1a1a1a;
+  min-height: 100vh;
 }
 
-.App-logo {
-  height: 40vmin;
+/* ── Layout ───────────────────────────────────────────────────── */
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 20px;
+  background: #1e293b;
+  color: #fff;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.app-title {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  margin-right: auto;
+  white-space: nowrap;
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.app-main {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.pane {
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.pane-tree {
+  flex: 2;
+  border-right: 1px solid #e2e8f0;
+  background: #fff;
+}
+
+.pane-detail {
+  flex: 1;
+  min-width: 260px;
+  background: #fafafa;
+}
+
+/* ── Buttons ──────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, opacity 0.15s;
+  white-space: nowrap;
+}
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-sm { padding: 4px 8px; font-size: 12px; }
+
+.btn-primary  { background: #3b82f6; color: #fff; }
+.btn-primary:hover:not(:disabled) { background: #2563eb; }
+
+.btn-secondary { background: #e2e8f0; color: #1e293b; }
+.btn-secondary:hover:not(:disabled) { background: #cbd5e1; }
+
+.btn-danger  { background: #ef4444; color: #fff; }
+.btn-danger:hover:not(:disabled) { background: #dc2626; }
+
+.btn-warning { background: #f59e0b; color: #fff; }
+.btn-warning:hover:not(:disabled) { background: #d97706; }
+
+/* ── Search bar ───────────────────────────────────────────────── */
+.search-bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.search-bar input {
+  padding: 5px 28px 5px 10px;
+  border-radius: 6px;
+  border: 1px solid #94a3b8;
+  background: #1e293b;
+  color: #f1f5f9;
+  font-size: 13px;
+  width: 180px;
+}
+.search-bar input::placeholder { color: #94a3b8; }
+.search-bar input:focus { outline: 2px solid #3b82f6; border-color: transparent; }
+.search-clear {
+  position: absolute;
+  right: 6px;
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  font-size: 11px;
+  padding: 0;
+}
+
+/* ── Tree view ────────────────────────────────────────────────── */
+.tree-view { padding: 4px 0; }
+
+.tree-root-list,
+.tree-children {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.tree-empty {
+  color: #64748b;
+  padding: 32px 16px;
+  text-align: center;
+  line-height: 2;
+}
+.tree-empty-hint { font-size: 13px; }
+
+.tree-node { margin: 1px 0; }
+
+.tree-node-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  background: none;
+  border: none;
+  text-align: left;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #1a1a1a;
+  font-size: 13px;
+  transition: background 0.1s;
+}
+.tree-node-btn:hover { background: #f1f5f9; }
+
+.tree-node-btn--selected { background: #dbeafe; color: #1d4ed8; font-weight: 600; }
+.tree-node-btn--selected:hover { background: #bfdbfe; }
+
+.tree-node-btn--highlighted { background: #fef9c3; }
+.tree-node-btn--highlighted.tree-node-btn--selected { background: #fde047; }
+
+.tree-node-icon { width: 14px; text-align: center; font-size: 12px; color: #64748b; }
+.tree-node-name { flex: 1; }
+.tree-node-dob { font-size: 11px; color: #94a3b8; }
+
+/* ── Detail panel ─────────────────────────────────────────────── */
+.detail-panel { min-height: 100%; }
+.detail-panel--empty { display: flex; align-items: center; justify-content: center; color: #94a3b8; }
+
+.detail-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.detail-header h2 { font-size: 16px; font-weight: 700; }
+.detail-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+.detail-list {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px 12px;
+}
+.detail-list dt { color: #64748b; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap; }
+.detail-list dd { color: #1a1a1a; word-break: break-word; }
+
+/* ── Member form ──────────────────────────────────────────────── */
+.member-form { display: flex; flex-direction: column; gap: 14px; }
+
+.form-field { display: flex; flex-direction: column; gap: 4px; }
+.form-field label { font-size: 12px; font-weight: 600; color: #475569; }
+.form-field input,
+.form-field select {
+  padding: 7px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 13px;
+  background: #fff;
+  color: #1a1a1a;
+  transition: border 0.15s;
+}
+.form-field input:focus,
+.form-field select:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 2px #bfdbfe; }
+.form-field input[aria-invalid="true"],
+.form-field select[aria-invalid="true"] { border-color: #ef4444; }
+
+.field-error  { font-size: 12px; color: #ef4444; }
+.field-warning { font-size: 12px; color: #f59e0b; }
+
+.form-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
+
+/* ── Modal ────────────────────────────────────────────────────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 16px;
+}
+
+.modal-box {
+  background: #fff;
+  border-radius: 10px;
+  padding: 24px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.modal-box h2 { font-size: 16px; font-weight: 700; }
+
+/* ── Import error banner ──────────────────────────────────────── */
+.import-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fef2f2;
+  color: #dc2626;
+  border-bottom: 1px solid #fecaca;
+  padding: 8px 20px;
+  font-size: 13px;
+}
+.import-error button { background: none; border: none; cursor: pointer; color: #dc2626; font-size: 14px; }
+
+/* ── Toast notifications ──────────────────────────────────────── */
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 200;
   pointer-events: none;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.toast {
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+  animation: toast-in 0.2s ease, toast-out 0.3s ease 2.7s forwards;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+.toast--success { background: #22c55e; color: #fff; }
+.toast--error   { background: #ef4444; color: #fff; }
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes toast-out {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(12px); }
 }
 
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* ── Responsive ───────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .app-main { flex-direction: column; }
+  .pane-tree { border-right: none; border-bottom: 1px solid #e2e8f0; max-height: 50vh; }
+  .pane-detail { min-width: unset; }
+  .app-header { gap: 8px; }
+  .search-bar input { width: 130px; }
 }
